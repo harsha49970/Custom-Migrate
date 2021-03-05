@@ -1,4 +1,4 @@
-name: CBIIT Migrate
+name: Custom Migrate
 description: Custom migration config and plugins
 package: Feeds
 type: module

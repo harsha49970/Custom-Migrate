@@ -1,0 +1,59 @@
+# A "migration" is, in technical terms, a plugin whose configuration describes
+# how to read source data, process it (generally by mapping source fields to
+# destination fields), and write it to Drupal.
+
+# The machine name for a migration, used to uniquely identify it.
+id: events_headshots
+
+# A human-friendly description of the migration.
+label: Create Events headshot image media entities
+
+# The machine name of the group containing this migration (which contains shared
+# configuration to be merged with our own configuration here).
+migration_group: default
+
+# The category or tag for the migration.
+migration_tags:
+  - event_posts
+
+source:
+  plugin: spreadsheet
+  file: ./modules/custom/custom_migrate/resources/cbiit_events.xlsx
+  worksheet: Headshots
+  origin: A2
+  header_row: 1
+  columns:
+    - Speaker Name
+    - Headshot File
+
+  row_index_column: 'ID No'
+
+destination:
+  plugin: entity:media
+
+process:
+
+  name: Speaker Name
+  # 'default_value:' line is an actual value.
+  bundle:
+    plugin: default_value
+    default_value: image
+  uid:
+    plugin: default_value
+    default_value: 1
+  field_media_image:
+    plugin: image_import
+    source: Headshot File
+    destination: 'constants/file_destination'
+    title: Speaker Name
+    alt: Speaker Name
+
+
+# We'll learn more about dependencies in beer_node - here, we leave them empty.
+migration_dependencies: {}
+
+# on your module.
+dependencies:
+  enforced:
+    module:
+      - custom_migrate

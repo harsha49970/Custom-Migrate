@@ -1,0 +1,33 @@
+id: datasets
+label: 'Datasets'
+source:
+  plugin: datasets
+  key: migrate
+process:
+  nid: nid
+  uid: uid
+  created: created
+  changed: changed
+  status: status
+  title: title
+  field_dataset_pubmed_id: field_dataset_pubmed_id_value
+  field_dataset_description: field_dataset_description_value
+  field_dataset_trial_id:
+    plugin: static_map
+    bypass: true
+    source: field_dataset_trial_id
+    map:
+      field_dataset_trial_id: field_dataset_trial_id
+  field_dataset_status: field_dataset_status_value
+  field_dataset_key: field_dataset_key_value
+  field_dataset_counter: field_dataset_counter_value
+  field_dataset_collaborative_agmt: field_dataset_collaborative_agmt_value
+  field_dataset_authembargo_users:
+    plugin: static_map
+    bypass: true
+    source: field_dataset_authembargo_users
+    map:
+      field_dataset_authembargo_users: field_dataset_authembargo_users
+destination:
+  plugin: entity:node
+  default_bundle: dataset

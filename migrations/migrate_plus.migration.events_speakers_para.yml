@@ -1,0 +1,53 @@
+# A "migration" is, in technical terms, a plugin whose configuration describes
+# how to read source data, process it (generally by mapping source fields to
+# destination fields), and write it to Drupal.
+
+# The machine name for a migration, used to uniquely identify it.
+id: events_bio_para
+
+# A human-friendly description of the migration.
+label: Create Events Bio paragraphs
+
+# The machine name of the group containing this migration (which contains shared
+# configuration to be merged with our own configuration here).
+migration_group: default
+
+# The category or tag for the migration.
+migration_tags:
+  - events
+
+source:
+  plugin: spreadsheet
+  file: ./modules/custom/custom_migrate/resources/cbiit_events.xlsx
+  worksheet: Speaker Paras
+  origin: A2
+  header_row: 1
+  columns:
+    - Speaker Name
+    - Speaker Bio
+    - Headshot Ids
+  row_index_column: 'ID No'
+  ids:
+    para_id:
+      type: string
+destination:
+  plugin: entity_reference_revisions:paragraph
+  default_bundle: speaker_biography
+
+process:
+  field_speaker_name: Speaker Name
+  'field_speaker_bio/value': Speaker Bio
+  'field_speaker_bio/format':
+     plugin: default_value
+     default_value: basic_html
+  field_speaker_photo:
+    plugin: migration_lookup
+    migration: events_headshots
+    source: Headshot Ids
+
+migration_dependencies: {  }
+
+dependencies:
+  enforced:
+    module:
+      - custom_migrate

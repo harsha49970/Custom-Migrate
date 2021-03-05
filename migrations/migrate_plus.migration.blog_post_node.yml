@@ -1,0 +1,88 @@
+# A "migration" is, in technical terms, a plugin whose configuration describes
+# how to read source data, process it (generally by mapping source fields to
+# destination fields), and write it to Drupal.
+
+# The machine name for a migration, used to uniquely identify it.
+id: blog_post_node
+
+# A human-friendly description of the migration.
+label: Create blog post node
+
+# The machine name of the group containing this migration (which contains shared
+# configuration to be merged with our own configuration here).
+migration_group: default
+
+# The category or tag for the migration.
+migration_tags:
+  - blog_posts
+
+source:
+  plugin: spreadsheet
+  file: ./modules/custom/custom_migrate/resources/cbiit_blog.xlsx
+  worksheet: POSTS FOR IMPORT
+  origin: A2
+  header_row: 1
+  columns:
+    - id
+    - Title
+    - Content
+    - FINAL CATEGORIES - CLEAN
+    - Post Date Text
+    - para_ids
+  row_index_column: 'ID No'
+
+destination:
+  plugin: entity:node
+
+process:
+  type:
+    plugin: default_value
+    default_value: blog_post
+  title: Title
+  uid:
+    plugin: default_value
+    default_value: 1
+  sticky:
+    plugin: default_value
+    default_value: 0
+  'field_description/value':
+    plugin: cbiit_blog_post_transform_content
+    source: Content
+  'field_description/format':
+     plugin: default_value
+     default_value: basic_html
+  field_blog_category:
+    -
+      plugin: explode
+      delimiter: ','
+      source: FINAL CATEGORIES - CLEAN
+    -
+      plugin: multiple_values
+    -
+      plugin: entity_lookup
+      value_key: name
+      bundle_key: vid
+      bundle: blog_category
+      entity_type: taxonomy_term
+      ignore_case: true
+  'field_published_date':
+    plugin: format_date
+    from_format: 'm/d/Y'
+    to_format: 'Y-m-d'
+    source: Post Date Text
+
+  field_author:
+    plugin: blog_post_author_paragraph_reference
+    source: para_ids
+
+migration_dependencies:
+  required:
+    - blog_category_term
+
+dependencies:
+  enforced:
+    module:
+      - custom_migrate
+
+
+

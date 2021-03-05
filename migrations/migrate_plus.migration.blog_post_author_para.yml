@@ -1,0 +1,51 @@
+# A "migration" is, in technical terms, a plugin whose configuration describes
+# how to read source data, process it (generally by mapping source fields to
+# destination fields), and write it to Drupal.
+
+# The machine name for a migration, used to uniquely identify it.
+id: blog_post_author_para
+
+# A human-friendly description of the migration.
+label: Create blog post author paragraphs
+
+# The machine name of the group containing this migration (which contains shared
+# configuration to be merged with our own configuration here).
+migration_group: default
+
+# The category or tag for the migration.
+migration_tags:
+  - blog_posts
+
+source:
+  plugin: spreadsheet
+  file: ./modules/custom/custom_migrate/resources/cbiit_blog.xlsx
+  worksheet: Author Paragraphs
+  origin: A2
+  header_row: 1
+  columns:
+    - para_id
+    - Author Name
+    - Author Title
+    - Auhtor Headshot Id
+  row_index_column: 'ID No'
+  ids:
+    para_id:
+      type: string
+destination:
+  plugin: entity_reference_revisions:paragraph
+  default_bundle: blog_post_author
+
+process:
+  field_author_name: Author Name
+  field_author_title: Author Title
+  field_author_headshot:
+    plugin: migration_lookup
+    migration: blog_headshots
+    source: Auhtor Headshot Id
+
+migration_dependencies: {  }
+
+dependencies:
+  enforced:
+    module:
+      - custom_migrate
